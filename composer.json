@@ -22,11 +22,11 @@
   "minimum-stability": "dev",
   "require": {
     "php": ">=7.2",
-    "Laminas/Laminas-servicemanager": "^3.4",
-    "Laminas/Laminas-inputfilter": "^2.10",
-    "Laminas/Laminas-form": "^2.14",
-    "Laminas/Laminas-view": "^2.11",
-    "Laminas/Laminas-mvc": "^3.1",
+    "laminas/laminas-servicemanager": "^3.4",
+    "laminas/laminas-inputfilter": "^2.10",
+    "laminas/laminas-form": "^2.14",
+    "laminas/laminas-view": "^2.11",
+    "laminas/laminas-mvc": "^3.1",
     "ext-json": "*"
   },
   "require-dev": {
