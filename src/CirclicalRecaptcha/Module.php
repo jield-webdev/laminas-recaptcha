@@ -17,7 +17,7 @@ class Module
     public function onBootstrap($event)
     {
         $application = $event->getApplication();
-        $services = $application->getServiceManager();
+        $services    = $application->getServiceManager();
         $services->get('ViewHelperManager')->get('FormElement')->addType(Recaptcha::ELEMENT_TYPE, Recaptcha::ELEMENT_TYPE);
     }
 }

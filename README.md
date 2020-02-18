@@ -1,4 +1,4 @@
-# Easy Google Captcha for Zend Framework 3
+# Easy Google Captcha for Laminas
 [![Total Downloads](https://poser.pugx.org/saeven/zf2-circlical-recaptcha/downloads)](https://packagist.org/packages/saeven/zf2-circlical-recaptcha)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/f3c5b36d508442eca8097c275eb45f43)](https://www.codacy.com/app/saeven/zf2-circlical-recaptcha?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Saeven/zf2-circlical-recaptcha&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/f3c5b36d508442eca8097c275eb45f43)](https://www.codacy.com/app/saeven/zf2-circlical-recaptcha?utm_source=github.com&utm_medium=referral&utm_content=Saeven/zf2-circlical-recaptcha&utm_campaign=Badge_Coverage)
@@ -64,51 +64,45 @@ If you're unfamiliar with ZF2, here's sample form code that implements the Captc
 ```php
 <?php
 
-namespace CirclicalUser\Form;
+namespace CirclicalRecaptcha\Form;
 
-use Zend\Form\Element,
-    Zend\Captcha,
-    Zend\InputFilter,
-    Zend\Form\Element\Password,
-    Zend\Form\Element\Text,
-    Zend\Form\Form,
-    CirclicalUser\Form\Element\Recaptcha,
-    Zend\Form\Element\Button;
+use CirclicalRecaptcha\Form\Element\Recaptcha;
+use Laminas\Form\Element\Button;
+use Laminas\Form\Form;
 
 
 class UserForm extends Form
 {
 
-    const       EMAIL = 'email';
+    public const EMAIL = 'email';
 
-    public function __construct( $name, $options = array() )
+    public function __construct($name, $options = [])
     {
-        parent::__construct( $name, $options );
+        parent::__construct($name, $options);
     }
 
     /**
      * Construct a registration form, with an AuthenticationFormInterface instance to establish minimum field count
      */
-    public function init()
+    public function init(): void
     {
-
-          $this->add([
-              'name'    => 'g-recaptcha-response',
-              'type'    => Recaptcha::class,
-              'options' => [
-                  'label'     => _( "Please complete the challenge below" ),
-                  'no_sitekey' => false,
-                  'no_script' => false,
-                  'language' => 'en', // see https://developers.google.com/recaptcha/docs/language
-              ],
-          ]);
+        $this->add([
+            'name'    => 'g-recaptcha-response',
+            'type'    => Recaptcha::class,
+            'options' => [
+                'label'      => _('Please complete the challenge below'),
+                'no_sitekey' => false,
+                'no_script'  => false,
+                'language'   => 'en', // see https://developers.google.com/recaptcha/docs/language
+            ],
+        ]);
 
 
         $this->add([
-            'name'      => self::EMAIL,
-            'type'      => self::EMAIL,
-            'options' => [
-                'label' => _( 'Email' ),
+            'name'       => self::EMAIL,
+            'type'       => self::EMAIL,
+            'options'    => [
+                'label' => _('Email'),
             ],
             'attributes' => [
                 'maxlength' => 254,
@@ -116,10 +110,10 @@ class UserForm extends Form
         ]);
 
         $this->add([
-            'name' => 'email_confirm',
-            'type' => self::EMAIL,
-            'options' => [
-                'label' => _( "Confirm Email" ),
+            'name'       => 'email_confirm',
+            'type'       => self::EMAIL,
+            'options'    => [
+                'label' => _('Confirm Email'),
             ],
             'attributes' => [
                 'maxlength' => 254,
@@ -128,10 +122,10 @@ class UserForm extends Form
 
 
         $this->add([
-            'name' => 'submit',
-            'type' => Button::class,
-            'options' => [
-                'label' => _( "Submit" ),
+            'name'       => 'submit',
+            'type'       => Button::class,
+            'options'    => [
+                'label' => _('Submit'),
             ],
             'attributes' => [
                 'class' => 'btn btn-primary',
@@ -149,29 +143,23 @@ And here's a sample InputFilter
 
 namespace CirclicalUser\InputFilter;
 
-use CirclicalUser\Form\Validator\RecaptchaValidator;
 use Doctrine\Common\Persistence\ObjectRepository;
 use DoctrineModule\Validator\NoObjectExists;
-use Zend\Filter\StringToLower;
-use Zend\Filter\StringTrim;
-use Zend\InputFilter\InputFilter;
-use Zend\Form\Element;
-use Zend\Captcha;
-use CirclicalUser\Form\Filter\ArrayBlock;
-use HTMLPurifier;
-use Zend\Validator\EmailAddress;
-use Zend\Validator\StringLength;
+use Laminas\Filter\StringToLower;
+use Laminas\Filter\StringTrim;
+use Laminas\InputFilter\InputFilter;
+use Laminas\Validator\EmailAddress;
 
 class UserInputFilter extends InputFilter implements UserInputFilterInterface
 {
-    const EMAIL     = 'email';
-    const RECAPTCHA = 'g-recaptcha-response';
+    public const EMAIL     = 'email';
+    public const RECAPTCHA = 'g-recaptcha-response';
 
     protected $userRepository;
     protected $has_captcha;
 
 
-    public function __construct( ObjectRepository $userRepository, $has_captcha )
+    public function __construct(ObjectRepository $userRepository, $has_captcha)
     {
         $this->userRepository = $userRepository;
         $this->has_captcha    = $has_captcha;
@@ -180,46 +168,43 @@ class UserInputFilter extends InputFilter implements UserInputFilterInterface
     public function init()
     {
 
-        if( $this->has_captcha )
-        {
+        if ($this->has_captcha) {
             $this->add([
-                'name' => self::RECAPTCHA,
-                'required' => true,
-                'messages' => [_("Please complete the anti-robot check!")],
+                'name'       => self::RECAPTCHA,
+                'required'   => true,
+                'messages'   => [_('Please complete the anti-robot check!')],
                 'validators' => [
                     ['name' => \CirclicalRecaptcha\Form\Validator\RecaptchaValidator::class,],
                 ],
             ]);
 
-            $this->get( self::RECAPTCHA )->setBreakOnFailure( true );
+            $this->get(self::RECAPTCHA)->setBreakOnFailure(true);
         }
 
         $this->add([
-            'name' => 'email',
-            'required' => true,
-            'filters' => [
-                ['name' => ArrayBlock::class],
+            'name'       => 'email',
+            'required'   => true,
+            'filters'    => [
                 ['name' => StringTrim::class],
-                ['name' => HTMLPurifier::class],
                 ['name' => StringToLower::class],
             ],
             'validators' => [
                 [
-                    'name' => EmailAddress::class,
+                    'name'    => EmailAddress::class,
                     'options' => [
-                        'useMxCheck'        => true,
-                        'useDeepMxCheck'    => true,
-                        'useDomainCheck'    => true,
-                        'message'           => _( "That email address has a typo in it, or its domain can't be checked" ),
+                        'useMxCheck'     => true,
+                        'useDeepMxCheck' => true,
+                        'useDomainCheck' => true,
+                        'message'        => _("That email address has a typo in it, or its domain can't be checked"),
                     ],
                 ],
 
                 [
-                    'name' => NoObjectExists::class,
+                    'name'    => NoObjectExists::class,
                     'options' => [
                         'fields'            => ['email'],
                         'messages'          => [
-                            NoObjectExists::ERROR_OBJECT_FOUND => _( "That email is already taken, please log in instead" ),
+                            NoObjectExists::ERROR_OBJECT_FOUND => _('That email is already taken, please log in instead'),
                         ],
                         'object_repository' => $this->userRepository,
                     ],
@@ -228,20 +213,18 @@ class UserInputFilter extends InputFilter implements UserInputFilterInterface
         ]);
 
         $this->add([
-            'name' => 'email_confirm',
-            'required' => true,
-            'filters' => [
-                ['name' => ArrayBlock::class],
+            'name'       => 'email_confirm',
+            'required'   => true,
+            'filters'    => [
                 ['name' => StringTrim::class],
-                ['name' => HTMLPurifier::class],
                 ['name' => StringToLower::class],
             ],
             'validators' => [
                 [
-                    'name' => 'identical',
+                    'name'    => 'identical',
                     'options' => [
-                        'message' => _( "Your email and confirmation email are different" ),
-                        'token' => self::EMAIL,
+                        'message' => _('Your email and confirmation email are different'),
+                        'token'   => self::EMAIL,
                     ],
                 ],
             ],

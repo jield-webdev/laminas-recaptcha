@@ -3,14 +3,14 @@
 
 namespace CirclicalRecaptcha\Form\View\Helper;
 
-use Zend\Form\ElementInterface;
-use Zend\Form\View\Helper\FormElement;
+use Laminas\Form\ElementInterface;
+use Laminas\Form\View\Helper\FormElement;
 
 class Recaptcha extends FormElement
 {
     public function render(ElementInterface $element)
     {
-        $noScript = $element->getOption('no_script');
+        $noScript  = $element->getOption('no_script');
         $noSitekey = $element->getOption('no_sitekey');
         $elementId = $element->getAttribute('id');
 
@@ -29,8 +29,8 @@ class Recaptcha extends FormElement
                 $params['hl'] = $language;
             }
 
-            $async = $element->getOption('async');
-            $defer = $element->getOption('defer');
+            $async     = $element->getOption('async');
+            $defer     = $element->getOption('defer');
             $scriptTag = sprintf(
                 '<script src="//www.google.com/recaptcha/api.js%s"%s%s></script>',
                 $params ? ('?' . http_build_query($params)) : '',

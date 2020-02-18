@@ -2,7 +2,7 @@
 
 namespace CirclicalRecaptcha\Form\Element;
 
-use Zend\Form\Element;
+use Laminas\Form\Element;
 
 class Recaptcha extends Element
 {
@@ -14,14 +14,14 @@ class Recaptcha extends Element
 
     private $secret;
 
-    public function getSecret(): string
-    {
-        return $this->secret;
-    }
-
     public function __construct(string $secret)
     {
         parent::__construct();
         $this->secret = $secret;
+    }
+
+    public function getSecret(): string
+    {
+        return $this->secret;
     }
 }
