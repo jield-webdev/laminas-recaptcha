@@ -4,14 +4,11 @@ namespace CirclicalRecaptcha;
 
 use CirclicalRecaptcha\Form\Element\Recaptcha;
 
-class Module
+final class Module
 {
-    /**
-     * {@inheritDoc}
-     */
     public function getConfig()
     {
-        return include __DIR__ . '/../../config/module.config.php';
+        return include __DIR__ . '/../config/module.config.php';
     }
 
     public function onBootstrap($event)
