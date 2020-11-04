@@ -30,7 +30,7 @@
     "ext-json": "*"
   },
   "require-dev": {
-    "phpspec/phpspec": "^6.1",
+    "phpspec/phpspec": "^6.1 || ^7.0",
     "phpunit/php-file-iterator": "^3.0",
     "codacy/coverage": "^1.0"
   },
