@@ -2,16 +2,17 @@
 
 namespace CirclicalRecaptcha;
 
-use CirclicalRecaptcha\Form\Validator\RecaptchaValidator;
-use CirclicalRecaptcha\Form\Element\Recaptcha;
 use CirclicalRecaptcha\Factory\Form\Element\RecaptchaFactory;
-use CirclicalRecaptcha\Form\View\Helper\Recaptcha as RecaptchaHelper;
 use CirclicalRecaptcha\Factory\Validator\RecaptchaValidatorFactory;
+use CirclicalRecaptcha\Form\Element\Recaptcha;
+use CirclicalRecaptcha\Form\Validator\RecaptchaValidator;
+use CirclicalRecaptcha\Form\View\Helper\Recaptcha as RecaptchaHelper;
 
 return [
-
-
     'form_elements' => [
+        'aliases'   => [
+            'recaptcha' => Recaptcha::class
+        ],
         'factories' => [
             Recaptcha::class => RecaptchaFactory::class,
         ],

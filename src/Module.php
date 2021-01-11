@@ -3,15 +3,16 @@
 namespace CirclicalRecaptcha;
 
 use CirclicalRecaptcha\Form\Element\Recaptcha;
+use Laminas\ModuleManager\Feature;
 
-final class Module
+final class Module implements Feature\ConfigProviderInterface, Feature\BootstrapListenerInterface
 {
     public function getConfig()
     {
         return include __DIR__ . '/../config/module.config.php';
     }
 
-    public function onBootstrap($event)
+    public function onBootstrap($event): void
     {
         $application = $event->getApplication();
         $services    = $application->getServiceManager();
