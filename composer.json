@@ -24,7 +24,7 @@
     "php": ">=7.2",
     "laminas/laminas-servicemanager": "^3.6",
     "laminas/laminas-inputfilter": "^2.11",
-    "laminas/laminas-form": "^2.15",
+    "laminas/laminas-form": "^2.15 || ^3.0",
     "laminas/laminas-view": "^2.12",
     "laminas/laminas-mvc": "^3.2",
     "ext-json": "*"
