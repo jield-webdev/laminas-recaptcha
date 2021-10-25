@@ -12,7 +12,7 @@ class Recaptcha extends Element
         'type' => self::ELEMENT_TYPE,
     ];
 
-    private $secret;
+    private string $secret;
 
     public function __construct(string $secret)
     {

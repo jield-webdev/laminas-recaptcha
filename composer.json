@@ -21,10 +21,10 @@
   ],
   "minimum-stability": "dev",
   "require": {
-    "php": ">=7.2",
+    "php": "^7.4 || ^8.0",
     "laminas/laminas-servicemanager": "^3.6",
     "laminas/laminas-inputfilter": "^2.11",
-    "laminas/laminas-form": "^2.15",
+    "laminas/laminas-form": "^3.1",
     "laminas/laminas-view": "^2.12",
     "laminas/laminas-mvc": "^3.2",
     "ext-json": "*"

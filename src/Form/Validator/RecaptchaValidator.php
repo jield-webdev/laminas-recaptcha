@@ -7,22 +7,15 @@ use Laminas\Validator\AbstractValidator;
 class RecaptchaValidator extends AbstractValidator
 {
     public const NOT_ANSWERED = 'not_answered';
-
     public const EXPIRED = 'expired';
-
     public const ERROR_MISSING_SECRET = 'missing-input-secret';
-
     public const ERROR_INVALID_SECRET = 'invalid-input-secret';
-
     public const ERROR_MISSING_INPUT_RESPONSE = 'missing-input-response';
-
     public const ERROR_INVALID_INPUT_RESPONSE = 'invalid-input-response';
-
     public const ERROR_CONNECTION_FAILED = 'connection-failed';
+    private static string $GOOGLE_REQUEST_URL = 'https://www.google.com/recaptcha/api/siteverify';
 
-    private static $GOOGLE_REQUEST_URL = 'https://www.google.com/recaptcha/api/siteverify';
-
-    protected $messageTemplates = [
+    protected array $messageTemplates = [
         self::ERROR_MISSING_SECRET         => 'The secret parameter is missing.',
         self::ERROR_INVALID_SECRET         => 'The secret parameter is invalid or malformed.',
         self::ERROR_MISSING_INPUT_RESPONSE => 'The response parameter is missing.',
@@ -33,20 +26,13 @@ class RecaptchaValidator extends AbstractValidator
     ];
 
 
-    private $secret;
-
-    private $errorCodes;
-
-    private $captchaBypassed;
-
+    private string $secret;
+    private array $errorCodes;
+    private bool $captchaBypassed;
     private $requestUrl;
-
-    private $responseTimeout;
-
+    private int $responseTimeout;
     private $challengeTimestamp;
-
     private $challengeVerificationTimestamp;
-
 
     public function __construct(string $secret, int $responseTimeout, $options = null)
     {
