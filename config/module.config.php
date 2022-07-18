@@ -10,20 +10,15 @@ use CirclicalRecaptcha\Form\View\Helper\Recaptcha as RecaptchaHelper;
 
 return [
     'form_elements' => [
-        'aliases'   => [
-            'recaptcha' => Recaptcha::class
-        ],
         'factories' => [
             Recaptcha::class => RecaptchaFactory::class,
         ],
     ],
-
     'view_helpers' => [
         'invokables' => [
             'recaptcha' => RecaptchaHelper::class,
         ],
     ],
-
     'validators' => [
         'factories' => [
             RecaptchaValidator::class => RecaptchaValidatorFactory::class,

@@ -1,49 +1,32 @@
 <?php
 
-
 namespace CirclicalRecaptcha\Form\View\Helper;
 
+use Laminas\Form\Element\Captcha;
 use Laminas\Form\ElementInterface;
 use Laminas\Form\View\Helper\FormElement;
 
 class Recaptcha extends FormElement
 {
-    public function render(ElementInterface $element): string
+    public function render(ElementInterface|Captcha $element): string
     {
-        $noScript  = $element->getOption('no_script');
-        $noSitekey = $element->getOption('no_sitekey');
-        $elementId = $element->getAttribute('id');
-
-        if (!$noScript) {
-            $params = [];
-
-            if ($render = $element->getOption('render')) {
-                $params['render'] = $render;
-            }
-
-            if ($callback = $element->getOption('onload')) {
-                $params['onload'] = $callback;
-            }
-
-            if ($language = $element->getOption('language')) {
-                $params['hl'] = $language;
-            }
-
-            $async     = $element->getOption('async');
-            $defer     = $element->getOption('defer');
-            $scriptTag = sprintf(
-                '<script src="//www.google.com/recaptcha/api.js%s"%s%s></script>',
-                $params ? ('?' . http_build_query($params)) : '',
-                $async ? ' async' : '',
-                $defer ? ' defer' : ''
-            );
-        }
-
-        return sprintf(
-            '<div class="form-group"><div%s class="g-recaptcha"%s></div></div>%s',
-            $elementId ? ' id="' . $elementId . '"' : '',
-            $noSitekey ? '' : ' data-sitekey="' . $element->getSecret() . '"',
-            $noScript ? '' : $scriptTag
+        $scriptTag = sprintf(
+            '<script src="//www.google.com/recaptcha/api.js?render=%s"></script>',
+            $element->getSecret()
         );
+
+        $callBackScript = <<<SCRIPT
+            <input type="hidden" name="%s" value="" id="recaptchaResponse">
+            <script>grecaptcha.ready(function() {
+                    grecaptcha.execute('%s', { action: 'submit' }).then(function (token) {
+                        var recaptchaResponse = document.getElementById('recaptchaResponse');
+                        recaptchaResponse.value = token;
+                    })
+                 });
+                </script>
+            SCRIPT;
+        $callBack = sprintf($callBackScript, $element->getName(), $element->getSecret());
+
+        return sprintf('%s%s', $scriptTag, $callBack);
     }
 }

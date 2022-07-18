@@ -2,9 +2,12 @@
 
 namespace CirclicalRecaptcha\Form\Element;
 
+use CirclicalRecaptcha\Form\Validator\RecaptchaValidator;
+use Laminas\Filter\StringTrim;
 use Laminas\Form\Element;
+use Laminas\InputFilter\InputProviderInterface;
 
-class Recaptcha extends Element
+class Recaptcha extends Element implements InputProviderInterface
 {
     public const ELEMENT_TYPE = 'recaptcha';
 
@@ -12,18 +15,24 @@ class Recaptcha extends Element
         'type' => self::ELEMENT_TYPE,
     ];
 
-    private string $secret;
-
-    public function __construct(string $secret)
+    public function __construct(private string $secret)
     {
-        $secret = '6LcCmjkUAAAAAERIapMfDQ-tL1562yyDiMGMv68t';
-
         parent::__construct();
-        $this->secret = $secret;
     }
 
     public function getSecret(): string
     {
         return $this->secret;
+    }
+
+    public function getInputSpecification(): array
+    {
+        return [
+            'name'       => $this->getName(),
+            'required'   => true,
+            'validators' => [
+                ['name' => RecaptchaValidator::class]
+            ],
+        ];
     }
 }
