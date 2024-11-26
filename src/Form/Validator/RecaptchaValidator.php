@@ -3,41 +3,45 @@
 namespace CirclicalRecaptcha\Form\Validator;
 
 use ErrorException;
-use Laminas\Json\Json;
 use Laminas\Validator\AbstractValidator;
+use Override;
 
 class RecaptchaValidator extends AbstractValidator
 {
-    public const NOT_ANSWERED = 'not_answered';
-    public const EXPIRED = 'expired';
-    public const ERROR_MISSING_SECRET = 'missing-input-secret';
-    public const ERROR_INVALID_SECRET = 'invalid-input-secret';
-    public const ERROR_MISSING_INPUT_RESPONSE = 'missing-input-response';
-    public const ERROR_INVALID_INPUT_RESPONSE = 'invalid-input-response';
-    public const ERROR_CONNECTION_FAILED = 'connection-failed';
+    public const string NOT_ANSWERED = 'not_answered';
 
-    private static string $GOOGLE_REQUEST_URL = 'https://www.google.com/recaptcha/api/siteverify';
+    public const string EXPIRED = 'expired';
 
-    protected array $messageTemplates = [
-        self::ERROR_MISSING_SECRET => 'The secret parameter is missing.',
-        self::ERROR_INVALID_SECRET => 'The secret parameter is invalid or malformed.',
-        self::ERROR_MISSING_INPUT_RESPONSE => 'The response parameter is missing.',
-        self::ERROR_INVALID_INPUT_RESPONSE => 'The response parameter is invalid or malformed.',
-        self::NOT_ANSWERED => 'You must complete the challenge.',
-        self::EXPIRED => 'Your form timed out, please try again.',
-        self::ERROR_CONNECTION_FAILED => 'The captcha could not be verified, please try again.',
-    ];
+    public const string ERROR_MISSING_SECRET = 'missing-input-secret';
 
-    private array $errorCodes;
+    public const string ERROR_INVALID_SECRET = 'invalid-input-secret';
 
-    private bool $captchaBypassed;
+    public const string ERROR_MISSING_INPUT_RESPONSE = 'missing-input-response';
 
-    public function __construct(private string $secret, private int $responseTimeout, $options = null)
+    public const string ERROR_INVALID_INPUT_RESPONSE = 'invalid-input-response';
+
+    public const string ERROR_CONNECTION_FAILED = 'connection-failed';
+
+    private const string GOOGLE_REQUEST_URL = 'https://www.google.com/recaptcha/api/siteverify';
+
+    protected array $messageTemplates
+        = [
+            self::ERROR_MISSING_SECRET         => 'The secret parameter is missing.',
+            self::ERROR_INVALID_SECRET         => 'The secret parameter is invalid or malformed.',
+            self::ERROR_MISSING_INPUT_RESPONSE => 'The response parameter is missing.',
+            self::ERROR_INVALID_INPUT_RESPONSE => 'The response parameter is invalid or malformed.',
+            self::NOT_ANSWERED                 => 'You must complete the challenge.',
+            self::EXPIRED                      => 'Your form timed out, please try again.',
+            self::ERROR_CONNECTION_FAILED      => 'The captcha could not be verified, please try again.',
+        ];
+
+    private array $errorCodes = [];
+
+    private bool $captchaBypassed = false;
+
+    public function __construct(private readonly string $secret, private readonly int $responseTimeout, ?array $options = null)
     {
-        parent::__construct($options);
-
-        $this->errorCodes = [];
-        $this->captchaBypassed = false;
+        parent::__construct(options: $options);
     }
 
     public function isCaptchaBypassed(): bool
@@ -55,41 +59,42 @@ class RecaptchaValidator extends AbstractValidator
         return $this->errorCodes;
     }
 
+    #[Override]
     public function isValid($value): bool
     {
         if ($this->captchaBypassed) {
             return true;
         }
 
-        if (!trim($value)) {
+        if (trim(string: (string)$value) === '' || trim(string: (string)$value) === '0') {
             $this->errorCodes[] = 'no-value-set';
-            $this->error(self::NOT_ANSWERED);
+            $this->error(messageKey: self::NOT_ANSWERED);
 
             return false;
         }
 
         // https://www.google.com/recaptcha/api/siteverify
-        $ipAddress = self::getIP();
-        $requestUrl = static::$GOOGLE_REQUEST_URL . '?' . http_build_query([
-                'secret' => $this->secret,
+        $ipAddress  = self::getIP();
+        $requestUrl = self::GOOGLE_REQUEST_URL . '?' . http_build_query(data: [
+                'secret'   => $this->secret,
                 'response' => $value,
                 'remoteip' => $ipAddress,
             ]);
 
         try {
-            $googleResponse = @file_get_contents($requestUrl);
+            $googleResponse = @file_get_contents(filename: $requestUrl);
             if ($googleResponse === false) {
-                throw new ErrorException('Site could not be reached');
+                throw new ErrorException(message: 'Site could not be reached');
             }
 
-            $json = Json::decode($googleResponse, Json::TYPE_ARRAY);
+            $json = json_decode(json: $googleResponse, associative: true);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 $this->errorCodes[] = self::ERROR_INVALID_INPUT_RESPONSE;
-                $this->error(self::ERROR_INVALID_INPUT_RESPONSE);
+                $this->error(messageKey: self::ERROR_INVALID_INPUT_RESPONSE);
             }
         } catch (ErrorException) {
             $this->errorCodes[] = self::ERROR_CONNECTION_FAILED;
-            $this->error(self::ERROR_CONNECTION_FAILED);
+            $this->error(messageKey: self::ERROR_CONNECTION_FAILED);
             return false;
         }
 
@@ -97,11 +102,11 @@ class RecaptchaValidator extends AbstractValidator
             if (!empty($json['error-codes'])) {
                 foreach ($json['error-codes'] as $r) {
                     $this->errorCodes[] = $r;
-                    $this->error($r);
+                    $this->error(messageKey: $r);
                 }
             } else {
                 $this->errorCodes[] = 'no-error-codes';
-                $this->error(self::EXPIRED);
+                $this->error(messageKey: self::EXPIRED);
             }
 
             return false;
@@ -109,10 +114,10 @@ class RecaptchaValidator extends AbstractValidator
 
         if ($json['challenge_ts']) {
             $challengeVerificationTimestamp = time();
-            $challengeTime = strtotime($json['challenge_ts']);
+            $challengeTime                  = strtotime(datetime: (string)$json['challenge_ts']);
             if ($challengeTime > 0 && ($challengeVerificationTimestamp - $challengeTime) > $this->responseTimeout) {
                 $this->errorCodes[] = 'no-error-codes';
-                $this->error(self::EXPIRED);
+                $this->error(messageKey: self::EXPIRED);
 
                 return false;
             }
@@ -131,14 +136,14 @@ class RecaptchaValidator extends AbstractValidator
 
         if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             // Put the IPs into an array which we shall work with shortly.
-            $ips = explode(', ', $_SERVER['HTTP_X_FORWARDED_FOR']);
+            $ips = explode(separator: ', ', string: (string)$_SERVER['HTTP_X_FORWARDED_FOR']);
             if ($ipAddress) {
                 array_unshift($ips, $ipAddress);
                 $ipAddress = false;
             }
 
             foreach ($ips as $iValue) {
-                if (!preg_match("#^(10|172\.16|192\.168)\.#", $iValue)) {
+                if (!preg_match(pattern: "#^(10|172\.16|192\.168)\.#", subject: (string)$iValue)) {
                     $ipAddress = $iValue;
                     break;
                 }

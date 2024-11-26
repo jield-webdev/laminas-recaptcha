@@ -2,14 +2,16 @@
 
 namespace CirclicalRecaptcha\Form\View\Helper;
 
-use Laminas\Form\Element\Captcha;
-use Laminas\Form\ElementInterface;
 use Laminas\Form\View\Helper\FormElement;
+use Override;
 
 class Recaptcha extends FormElement
 {
-    public function render(ElementInterface|Captcha $element): string
+    #[Override]
+    public function render($element): string
     {
+        assert($element instanceof \CirclicalRecaptcha\Form\Element\Recaptcha);
+
         $scriptTag = sprintf(
             '<script src="//www.google.com/recaptcha/api.js?render=%s"></script>',
             $element->getSecret()
@@ -19,13 +21,13 @@ class Recaptcha extends FormElement
             <input type="hidden" name="%s" value="" id="recaptchaResponse">
             <script>grecaptcha.ready(function() {
                     grecaptcha.execute('%s', { action: 'submit' }).then(function (token) {
-                        var recaptchaResponse = document.getElementById('recaptchaResponse');
+                        const recaptchaResponse = document.getElementById('recaptchaResponse');
                         recaptchaResponse.value = token;
                     })
                  });
                 </script>
             SCRIPT;
-        $callBack = sprintf($callBackScript, $element->getName(), $element->getSecret());
+        $callBack       = sprintf($callBackScript, $element->getName(), $element->getSecret());
 
         return sprintf('%s%s', $scriptTag, $callBack);
     }
