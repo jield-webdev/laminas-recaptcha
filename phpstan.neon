@@ -1,0 +1,8 @@
+# phpstan.neon
+parameters:
+    level: 2
+    paths:
+        - src
+    ignoreErrors:
+    	-
+    	    identifier:  class.extendsFinalByPhpDoc

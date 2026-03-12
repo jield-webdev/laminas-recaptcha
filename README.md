@@ -140,3 +140,7 @@ In the controller the form can be called in the following way
 //To properly load the captcha, we need to use the formElementManager to get the form
 $form = $this->formElementManager->get(Register::class);
 ```
+
+```shell
+docker compose run --rm php vendor/bin/phpstan --memory-limit=2G
+```

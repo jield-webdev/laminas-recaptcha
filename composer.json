@@ -27,7 +27,7 @@
   ],
   "minimum-stability": "dev",
   "require": {
-    "php": "~8.3.0 || ~8.4.0",
+    "php": "~8.3.0 || ~8.4.0 || ~8.5.0",
     "laminas/laminas-servicemanager": "^3.6",
     "laminas/laminas-inputfilter": "^2.11",
     "laminas/laminas-form": "^3.1",
